@@ -1,58 +1,57 @@
-const CertificateService = require("../services/certificateService");
+const CertificateGenerator = require("../services/certificateGenerator");
 const NFTService = require("../services/nftService");
 const { v4: uuidv4 } = require("uuid");
 
 class CertificateController {
   constructor() {
-    this.certificateService = new CertificateService();
+    this.certificateGenerator = new CertificateGenerator();
     this.nftService = new NFTService();
   }
 
   async generateAndMintCertificate(req, res) {
     try {
-      const { name, activity, date, recipientAddress } = req.body;
+      const { name, activity, date, recipientWallet } = req.body;
 
-      if (!name || !activity || !date || !recipientAddress) {
+      // Validate input
+      if (!name || !activity || !date || !recipientWallet) {
         return res.status(400).json({
-          success: false,
-          error: "Missing required fields",
+          error: "Missing required fields: name, activity, date, recipientWallet",
         });
       }
 
-      // Create certificate data
-      const certificateData = {
-        id: Date.now().toString(),
-        name,
-        activity,
-        date,
-      };
+      // Generate unique certificate ID
+      const certificateId = uuidv4();
 
       // Generate certificate image
-      const certificateResult = await this.certificateService.generateCertificate(certificateData);
-      console.log("Certificate generated:", certificateResult);
+      const certificateData = { name, activity, date, id: certificateId };
+      const certificate = await this.certificateGenerator.generateCertificate(certificateData);
+
+      // Create image URL (adjust based on your deployment)
+      const imageUrl = `${process.env.BASE_URL || "http://localhost:3000"}/certificates/${certificate.fileName}`;
 
       // Create NFT metadata
-      const metadataResult = await this.nftService.createNFTMetadata(certificateData, certificateResult.imagePath);
-      console.log("NFT metadata created:", metadataResult);
+      const { metadata, metadataFileName } = await this.nftService.createNFTMetadata(certificateData, imageUrl);
+
+      // Create metadata URL
+      const metadataUrl = `${process.env.BASE_URL || "http://localhost:3000"}/metadata/${metadataFileName}`;
 
       // Mint NFT
-      const mintResult = await this.nftService.mintNFT(metadataResult, recipientAddress);
-      console.log("NFT minted:", mintResult);
+      const nftResult = await this.nftService.mintNFT(metadataUrl, recipientWallet);
 
-      return res.status(200).json({
+      res.json({
         success: true,
-        data: {
-          certificate: certificateData,
-          imageUrl: certificateResult.imageUrl,
-          metadataUrl: metadataResult.metadataUri,
-          mintResult,
+        certificate: {
+          id: certificateId,
+          imageUrl,
+          metadataUrl,
+          nft: nftResult,
         },
       });
     } catch (error) {
-      console.error("Error in generateAndMintCertificate:", error);
-      return res.status(500).json({
-        success: false,
-        error: error.message,
+      console.error("Error generating certificate:", error);
+      res.status(500).json({
+        error: "Failed to generate certificate",
+        details: error.message,
       });
     }
   }
@@ -69,7 +68,7 @@ class CertificateController {
 
       const certificateId = uuidv4();
       const certificateData = { name, activity, date, id: certificateId };
-      const certificate = await this.certificateService.generateCertificate(certificateData);
+      const certificate = await this.certificateGenerator.generateCertificate(certificateData);
 
       const imageUrl = `${process.env.BASE_URL || "http://localhost:3000"}/certificates/${certificate.fileName}`;
 
@@ -91,4 +90,4 @@ class CertificateController {
   }
 }
 
-module.exports = CertificateController;
+module.exports = new CertificateController();
