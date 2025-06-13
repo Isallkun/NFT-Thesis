@@ -1,7 +1,7 @@
 {
   "name": "NFT-Thesis-Backend",
   "version": "1.0.0",
-  "description": "Backend for NFT Thesis",
+  "description": "",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
@@ -11,9 +11,11 @@
   "keywords": [],
   "author": "Isallkun",
   "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@metaplex-foundation/js": "^0.19.5",
     "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/umi": "^1.2.0",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.2.0",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.98.2",
     "canvas": "^3.1.0",

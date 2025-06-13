@@ -1,0 +1,44 @@
+{
+  "name": "Certificate - Isallkun",
+  "symbol": "CERT",
+  "description": "Digital certificate for Testing issued to Isallkun",
+  "image": "http://localhost:3000/certificates/certificate_97e27017-f9dc-453f-acf8-4866b6eb2584_1749776363639.png",
+  "external_url": "http://localhost:3000/certificates/certificate_97e27017-f9dc-453f-acf8-4866b6eb2584_1749776363639.png",
+  "attributes": [
+    {
+      "trait_type": "Recipient",
+      "value": "Isallkun"
+    },
+    {
+      "trait_type": "Activity",
+      "value": "Testing"
+    },
+    {
+      "trait_type": "Date Issued",
+      "value": "2025-06-13"
+    },
+    {
+      "trait_type": "Institution",
+      "value": "Universitas Yudharta Pasuruan"
+    },
+    {
+      "trait_type": "Certificate ID",
+      "value": "97e27017-f9dc-453f-acf8-4866b6eb2584"
+    }
+  ],
+  "properties": {
+    "category": "image",
+    "files": [
+      {
+        "uri": "http://localhost:3000/certificates/certificate_97e27017-f9dc-453f-acf8-4866b6eb2584_1749776363639.png",
+        "type": "image/png"
+      }
+    ],
+    "creators": [
+      {
+        "address": "6QiaBrVRES5RSwo5zFoWDTDyTgESGAfuD4mPPD8rHMJQ",
+        "share": 100
+      }
+    ]
+  }
+}
