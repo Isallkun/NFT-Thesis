@@ -1,0 +1,44 @@
+{
+  "name": "Certificate - Isallkun",
+  "symbol": "CERT",
+  "description": "Digital certificate for Testing issued to Isallkun",
+  "image": "https://gateway.pinata.cloud/ipfs/QmdKfpkZnFhmYMpwAhs5dwvEn7pthVNTQ3GowgUfhD75BX",
+  "external_url": "https://gateway.pinata.cloud/ipfs/QmdKfpkZnFhmYMpwAhs5dwvEn7pthVNTQ3GowgUfhD75BX",
+  "attributes": [
+    {
+      "trait_type": "Recipient",
+      "value": "Isallkun"
+    },
+    {
+      "trait_type": "Activity",
+      "value": "Testing"
+    },
+    {
+      "trait_type": "Date Issued",
+      "value": "2025-06-13"
+    },
+    {
+      "trait_type": "Institution",
+      "value": "Universitas Yudharta Pasuruan"
+    },
+    {
+      "trait_type": "Certificate ID",
+      "value": "32f32250-c800-481c-9475-8dcf79398503"
+    }
+  ],
+  "properties": {
+    "category": "image",
+    "files": [
+      {
+        "uri": "https://gateway.pinata.cloud/ipfs/QmdKfpkZnFhmYMpwAhs5dwvEn7pthVNTQ3GowgUfhD75BX",
+        "type": "image/png"
+      }
+    ],
+    "creators": [
+      {
+        "address": "6QiaBrVRES5RSwo5zFoWDTDyTgESGAfuD4mPPD8rHMJQ",
+        "share": 100
+      }
+    ]
+  }
+}
