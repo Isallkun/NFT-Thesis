@@ -1,12 +1,9 @@
 const { Connection, PublicKey, Keypair, SystemProgram, Transaction, sendAndConfirmTransaction, TransactionInstruction } = require("@solana/web3.js");
 const { Token, TOKEN_PROGRAM_ID } = require("@solana/spl-token");
-const pinataSDK = require("@pinata/sdk");
 const fs = require("fs");
 const path = require("path");
 const FormData = require("form-data");
 const axios = require("axios");
-const { Metaplex, keypairIdentity } = require("@metaplex-foundation/js");
-const { TokenStandard } = require("@metaplex-foundation/mpl-token-metadata");
 
 // Program IDs
 const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
@@ -16,13 +13,8 @@ class NFTService {
   constructor() {
     this.connection = new Connection(process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com");
     this.payer = Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.SOLANA_PRIVATE_KEY)));
-    this.metaplex = Metaplex.make(this.connection).use(keypairIdentity(this.payer));
     this.pinataApiKey = process.env.PINATA_API_KEY;
     this.pinataSecretKey = process.env.PINATA_SECRET_KEY;
-    this.baseUrl = process.env.PUBLIC_URL || "http://localhost:3000";
-
-    // Initialize Pinata
-    this.pinata = new pinataSDK(this.pinataApiKey, this.pinataSecretKey);
   }
 
   async uploadToPinata(filePath, fileName) {
@@ -65,75 +57,85 @@ class NFTService {
     }
   }
 
-  async createNFTMetadata(certificateData, imageUrl) {
-    // Convert local URLs to public URLs
-    const publicImageUrl = imageUrl.startsWith("http") ? imageUrl : `${this.baseUrl}${imageUrl}`;
+  async createNFTMetadata(certificateData, imagePath) {
+    try {
+      if (!certificateData) {
+        throw new Error("Certificate data is required for creating metadata");
+      }
 
-    const metadata = {
-      name: `Certificate - ${certificateData.name}`,
-      symbol: "CERT",
-      description: `Digital certificate for ${certificateData.activity} issued to ${certificateData.name}`,
-      image: publicImageUrl,
-      external_url: publicImageUrl,
-      attributes: [
-        {
-          trait_type: "Recipient",
-          value: certificateData.name,
-        },
-        {
-          trait_type: "Activity",
-          value: certificateData.activity,
-        },
-        {
-          trait_type: "Date Issued",
-          value: certificateData.date,
-        },
-        {
-          trait_type: "Institution",
-          value: "Universitas Yudharta Pasuruan",
-        },
-        {
-          trait_type: "Certificate ID",
-          value: certificateData.id,
-        },
-      ],
-      properties: {
-        category: "image",
-        files: [
+      // Upload image to Pinata
+      const imageIpfsUrl = await this.uploadToPinata(imagePath, path.basename(imagePath));
+      console.log("Image uploaded to IPFS:", imageIpfsUrl);
+
+      const metadata = {
+        name: `Certificate - ${certificateData.name}`,
+        symbol: "CERT",
+        description: `Digital certificate for ${certificateData.activity} issued to ${certificateData.name}`,
+        image: imageIpfsUrl,
+        external_url: imageIpfsUrl,
+        attributes: [
           {
-            uri: publicImageUrl,
-            type: "image/png",
+            trait_type: "Recipient",
+            value: certificateData.name,
+          },
+          {
+            trait_type: "Activity",
+            value: certificateData.activity,
+          },
+          {
+            trait_type: "Date Issued",
+            value: certificateData.date,
+          },
+          {
+            trait_type: "Institution",
+            value: "Universitas Yudharta Pasuruan",
+          },
+          {
+            trait_type: "Certificate ID",
+            value: certificateData.id,
           },
         ],
-        creators: [
-          {
-            address: this.payer.publicKey.toBase58(),
-            share: 100,
-          },
-        ],
-      },
-    };
+        properties: {
+          category: "image",
+          files: [
+            {
+              uri: imageIpfsUrl,
+              type: "image/png",
+            },
+          ],
+          creators: [
+            {
+              address: this.payer.publicKey.toBase58(),
+              share: 100,
+            },
+          ],
+        },
+      };
 
-    // Save metadata to file
-    const metadataFileName = `metadata_${certificateData.id}.json`;
-    const metadataPath = path.join(__dirname, "../../metadata", metadataFileName);
+      // Save metadata to temporary file
+      const tempDir = path.join(__dirname, "../../temp");
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+      const metadataPath = path.join(tempDir, "metadata.json");
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
 
-    const dir = path.dirname(metadataPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+      // Upload metadata to Pinata
+      const metadataIpfsUrl = await this.uploadToPinata(metadataPath, "metadata.json");
+      console.log("Metadata uploaded to IPFS:", metadataIpfsUrl);
+
+      // Clean up temporary metadata file
+      fs.unlinkSync(metadataPath);
+
+      // Return both the metadata and the IPFS URL
+      return {
+        metadata,
+        metadataUri: metadataIpfsUrl,
+      };
+    } catch (error) {
+      console.error("Error creating NFT metadata:", error);
+      throw error;
     }
-
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
-
-    // Return public URL for metadata
-    const metadataUrl = `${this.baseUrl}/metadata/${metadataFileName}`;
-
-    return {
-      metadata,
-      metadataFileName,
-      metadataPath,
-      metadataUrl,
-    };
   }
 
   // Helper function to serialize string with length prefix
@@ -209,6 +211,15 @@ class NFTService {
       console.log("Starting NFT minting process...");
       console.log("Metadata URI:", metadataUri);
       console.log("Recipient wallet:", recipientWallet);
+      console.log("Certificate data:", certificateData);
+
+      if (!certificateData) {
+        throw new Error("Certificate data is required for minting NFT");
+      }
+
+      if (!metadataUri || metadataUri.includes("localhost")) {
+        throw new Error("Invalid metadata URI. Must be an IPFS URL");
+      }
 
       // Create mint account
       const mint = await Token.createMint(
@@ -265,8 +276,8 @@ class NFTService {
       console.log("Creating metadata account...");
       console.log("Metadata account address:", metadataAccount.toBase58());
 
-      // Create metadata instruction
-      const metadataInstruction = this.createMetadataInstruction(metadataAccount, mint.publicKey, this.payer.publicKey, this.payer.publicKey, this.payer.publicKey, `Certificate - ${certificateData?.name || "Unknown"}`, "CERT", metadataUri);
+      // Create metadata instruction with proper name and URI
+      const metadataInstruction = this.createMetadataInstruction(metadataAccount, mint.publicKey, this.payer.publicKey, this.payer.publicKey, this.payer.publicKey, `Certificate - ${certificateData.name}`, "CERT", metadataUri);
 
       const metadataTransaction = new Transaction().add(metadataInstruction);
 

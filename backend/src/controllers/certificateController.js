@@ -29,21 +29,19 @@ class CertificateController {
       // Create image URL (adjust based on your deployment)
       const imageUrl = `${process.env.BASE_URL || "http://localhost:3000"}/certificates/${certificate.fileName}`;
 
-      // Create NFT metadata
-      const { metadata, metadataFileName } = await this.nftService.createNFTMetadata(certificateData, imageUrl);
+      // Create NFT metadata and get IPFS URL
+      const { metadata, metadataUri } = await this.nftService.createNFTMetadata(certificateData, imageUrl);
+      console.log("Using metadata URI:", metadataUri);
 
-      // Create metadata URL
-      const metadataUrl = `${process.env.BASE_URL || "http://localhost:3000"}/metadata/${metadataFileName}`;
-
-      // Mint NFT
-      const nftResult = await this.nftService.mintNFT(metadataUrl, recipientWallet);
+      // Mint NFT with certificate data and IPFS metadata URI
+      const nftResult = await this.nftService.mintNFT(metadataUri, recipientWallet, certificateData);
 
       res.json({
         success: true,
         certificate: {
           id: certificateId,
           imageUrl,
-          metadataUrl,
+          metadataUrl: metadataUri,
           nft: nftResult,
         },
       });
