@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "generate-wallet": "node scripts/generateWallet.js"
+    "generate-wallet": "node scripts/generateWallet.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Isallkun",
@@ -26,6 +27,8 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "jest": "^29.0.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
   }
 }

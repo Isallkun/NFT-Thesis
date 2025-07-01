@@ -245,12 +245,15 @@ const CertificateGenerator = () => {
                           <span className="text-purple-300">Mint Address:</span>
                           <span className="text-white font-mono text-xs break-all">{result.nft.mintAddress}</span>
                         </div>
-                        <div className="flex flex-col">
-                          <span className="text-purple-300">Transaction:</span>
-                          <a href={`https://explorer.solana.com/tx/${result.nft.signature}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 font-mono text-xs break-all">
-                            {result.nft.signature}
-                          </a>
-                        </div>
+                        {result.transactionLink && (
+                          <div className="flex flex-col">
+                            <span className="text-purple-300">Transaksi Mint:</span>
+                            <a href={result.transactionLink} target="_blank" rel="noopener noreferrer" className="font-mono text-xs break-all text-blue-300 hover:text-blue-200">
+                              {result.transactionLink}
+                            </a>
+                            {result.nft && result.nft.mintSignature && <span className="font-mono text-xs break-all text-white mt-2">Signature: {result.nft.mintSignature}</span>}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

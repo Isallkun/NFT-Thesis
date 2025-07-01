@@ -19,6 +19,15 @@ class CertificateController {
         });
       }
 
+      // Validasi panjang nama NFT (maksimal 32 karakter untuk name di metadata)
+      const maxNameLength = 32;
+      const prefix = "Certificate - ";
+      if ((prefix + name).length > maxNameLength) {
+        return res.status(400).json({
+          error: `Nama sertifikat terlalu panjang. Maksimal ${maxNameLength - prefix.length} karakter untuk nama.`,
+        });
+      }
+
       // Generate unique certificate ID
       const certificateId = uuidv4();
 
@@ -36,6 +45,12 @@ class CertificateController {
       // Mint NFT with certificate data and IPFS metadata URI
       const nftResult = await this.nftService.mintNFT(metadataUri, recipientWallet, certificateData);
 
+      // Tambahkan link Solscan untuk transaksi mint
+      let transactionLink = null;
+      if (nftResult && nftResult.mintSignature) {
+        transactionLink = `https://solscan.io/tx/${nftResult.mintSignature}?cluster=devnet`;
+      }
+
       res.json({
         success: true,
         certificate: {
@@ -43,6 +58,7 @@ class CertificateController {
           imageUrl,
           metadataUrl: metadataUri,
           nft: nftResult,
+          transactionLink,
         },
       });
     } catch (error) {
