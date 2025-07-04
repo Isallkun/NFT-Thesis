@@ -31,7 +31,7 @@ const CertificateGenerator = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/certificate/generate", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/certificate/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const CertificateGenerator = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/certificate/generate-and-mint", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/certificate/generate-and-mint`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
