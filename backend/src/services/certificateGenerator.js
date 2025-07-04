@@ -2,6 +2,9 @@ const { createCanvas, loadImage, registerFont } = require("canvas");
 const fs = require("fs");
 const path = require("path");
 
+// Register font Roboto agar teks tidak kotak-kotak di Railway/Node.js
+typeof registerFont === "function" && registerFont(path.join(__dirname, "../../assets/fonts/Roboto-Regular.ttf"), { family: "Roboto" });
+
 class CertificateGenerator {
   constructor() {
     this.width = 1200;
@@ -35,46 +38,46 @@ class CertificateGenerator {
 
     // Title
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 48px Arial";
+    ctx.font = "bold 48px Roboto";
     ctx.textAlign = "center";
     ctx.fillText("SERTIFIKAT", this.width / 2, 150);
     ctx.fillText("PESERTA", this.width / 2, 210);
 
     // Subtitle
-    ctx.font = "24px Arial";
+    ctx.font = "24px Roboto";
     ctx.fillText("Diberikan kepada:", this.width / 2, 280);
 
     // Name
-    ctx.font = "bold 42px Arial";
+    ctx.font = "bold 42px Roboto";
     ctx.fillStyle = "#ffd700";
     ctx.fillText(name.toUpperCase(), this.width / 2, 350);
 
     // Activity description
     ctx.fillStyle = "#ffffff";
-    ctx.font = "28px Arial";
+    ctx.font = "28px Roboto";
     ctx.fillText("Atas partisipasi dalam kegiatan:", this.width / 2, 420);
 
-    ctx.font = "bold 32px Arial";
+    ctx.font = "bold 32px Roboto";
     ctx.fillText(activity, this.width / 2, 480);
 
     // Date
-    ctx.font = "22px Arial";
+    ctx.font = "22px Roboto";
     ctx.fillText(`Tanggal: ${date}`, this.width / 2, 550);
 
     // Certificate ID
-    ctx.font = "18px Arial";
+    ctx.font = "18px Roboto";
     ctx.fillStyle = "#e0e0e0";
     ctx.fillText(`ID Sertifikat: ${id}`, this.width / 2, 620);
 
     // Institution info
-    ctx.font = "bold 24px Arial";
+    ctx.font = "bold 24px Roboto";
     ctx.fillStyle = "#ffffff";
     ctx.fillText("UNIVERSITAS YUDHARTA PASURUAN", this.width / 2, 700);
-    ctx.font = "18px Arial";
+    ctx.font = "18px Roboto";
     ctx.fillText("Sistem Sertifikasi Digital Berbasis Blockchain", this.width / 2, 730);
 
     // Blockchain verification info
-    ctx.font = "16px Arial";
+    ctx.font = "16px Roboto";
     ctx.fillStyle = "#ffd700";
     ctx.fillText("✓ Terverifikasi di Blockchain Solana", this.width / 2, 780);
 
