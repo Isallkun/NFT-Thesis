@@ -65,8 +65,11 @@ class NFTService {
         throw new Error("Certificate data is required for creating metadata");
       }
 
-      // Upload image to Pinata
-      const imageIpfsUrl = await this.uploadToPinata(imagePath, path.basename(imagePath));
+      // Jangan upload ulang jika sudah ipfs://
+      let imageIpfsUrl = imagePath;
+      if (!imagePath.startsWith("ipfs://")) {
+        imageIpfsUrl = await this.uploadToPinata(imagePath, path.basename(imagePath));
+      }
       console.log("Image uploaded to IPFS:", imageIpfsUrl);
 
       const metadata = {
