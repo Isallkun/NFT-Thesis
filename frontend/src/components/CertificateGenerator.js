@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Upload, Download, Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
+// Fungsi utilitas untuk konversi ipfs:// ke gateway HTTP
+function ipfsToHttp(ipfsUrl) {
+  if (!ipfsUrl) return "";
+  return ipfsUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
+}
+
 const CertificateGenerator = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -226,12 +232,16 @@ const CertificateGenerator = () => {
                   <div>
                     <h3 className="text-white font-medium mb-3">Preview Sertifikat:</h3>
                     <div className="bg-white rounded-lg p-2">
-                      <img src={result.imageUrl} alt="Certificate" className="w-full rounded border" />
+                      <img src={ipfsToHttp(result.imageUrl)} alt="Certificate" className="w-full rounded border" />
                     </div>
                   </div>
 
                   {/* Download Button */}
-                  <a href={result.imageUrl} download={`certificate_${result.id}.png`} className="flex items-center justify-center space-x-2 bg-green-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                  <a
+                    href={ipfsToHttp(result.imageUrl)}
+                    download={`certificate_${result.id}.png`}
+                    className="flex items-center justify-center space-x-2 bg-green-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
+                  >
                     <Download className="w-5 h-5" />
                     <span>Download Sertifikat</span>
                   </a>
