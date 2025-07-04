@@ -35,12 +35,11 @@ class CertificateController {
       const certificateData = { name, activity, date, id: certificateId };
       const certificate = await this.certificateGenerator.generateCertificate(certificateData);
 
-      // Create image URL (adjust based on your deployment)
-      let baseUrl = process.env.BASE_URL || "http://localhost:3000";
-      if (!process.env.BASE_URL && process.env.NODE_ENV === "production") {
-        throw new Error("BASE_URL environment variable must be set in production.");
-      }
-      const imageUrl = `${baseUrl}/certificates/${certificate.fileName}`;
+      // Upload buffer gambar langsung ke Pinata
+      const imageIpfsUrl = await this.nftService.uploadToPinata(certificate.buffer, certificate.fileName);
+
+      // Gunakan IPFS URL sebagai imageUrl
+      const imageUrl = imageIpfsUrl;
 
       // Create NFT metadata and get IPFS URL
       const { metadata, metadataUri } = await this.nftService.createNFTMetadata(certificateData, imageUrl);
@@ -88,11 +87,9 @@ class CertificateController {
       const certificateData = { name, activity, date, id: certificateId };
       const certificate = await this.certificateGenerator.generateCertificate(certificateData);
 
-      let baseUrl = process.env.BASE_URL || "http://localhost:3000";
-      if (!process.env.BASE_URL && process.env.NODE_ENV === "production") {
-        throw new Error("BASE_URL environment variable must be set in production.");
-      }
-      const imageUrl = `${baseUrl}/certificates/${certificate.fileName}`;
+      // Upload buffer gambar langsung ke Pinata
+      const imageIpfsUrl = await this.nftService.uploadToPinata(certificate.buffer, certificate.fileName);
+      const imageUrl = imageIpfsUrl;
 
       res.json({
         success: true,

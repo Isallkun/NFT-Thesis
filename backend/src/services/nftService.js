@@ -17,21 +17,23 @@ class NFTService {
     this.pinataSecretKey = process.env.PINATA_SECRET_KEY;
   }
 
-  async uploadToPinata(filePath, fileName) {
+  async uploadToPinata(fileOrBuffer, fileName) {
     try {
       let fileBuffer;
-
-      // Check if the filePath is a URL or local path
-      if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
-        // Download from URL
-        const response = await axios.get(filePath, { responseType: "arraybuffer" });
-        fileBuffer = Buffer.from(response.data);
-      } else {
-        // Read local file
-        if (!fs.existsSync(filePath)) {
-          throw new Error(`File not found: ${filePath}`);
+      if (Buffer.isBuffer(fileOrBuffer)) {
+        fileBuffer = fileOrBuffer;
+      } else if (typeof fileOrBuffer === "string") {
+        if (fileOrBuffer.startsWith("http://") || fileOrBuffer.startsWith("https://")) {
+          const response = await axios.get(fileOrBuffer, { responseType: "arraybuffer" });
+          fileBuffer = Buffer.from(response.data);
+        } else {
+          if (!fs.existsSync(fileOrBuffer)) {
+            throw new Error(`File not found: ${fileOrBuffer}`);
+          }
+          fileBuffer = fs.readFileSync(fileOrBuffer);
         }
-        fileBuffer = fs.readFileSync(filePath);
+      } else {
+        throw new Error("Invalid argument for uploadToPinata: must be buffer or file path");
       }
 
       // Create form data
